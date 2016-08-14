@@ -1,4 +1,4 @@
-﻿<#
+<#
 .Synopsis
 This cmdlet shows the specified script by adding line numbers and error occured lines and more details if required.
 .Description
@@ -69,12 +69,12 @@ $ExecuteAndShowBadLineAs,
 )
 
 Begin{
-
+    $Script:Output=''
     if( -not( Test-Path -Path $Script ) ){
         Write-Warning -Message "Cannot find file $Script";break     
     }
     $Line=0
-    $HighLightingLine = [System.Collections.ArrayList]::new()
+    $HighLightingLine = New-Object -TypeName System.Collections.ArrayList
     $HighlightLine | ForEach-Object -Process { $HighLightingLine.Add($_)|Out-Null}
     $ErrorActionPreferenceBak = $ErrorActionPreference
     $ClearIt = {}
@@ -83,7 +83,8 @@ Begin{
 }
 
 Process{
-    if( $ExecuteAndShowBadLineAs ){
+$PSBoundParameters
+    if($PSBoundParameters.ContainsKey('ExecuteAndShowBadLineAs')){
 
         $Error.Clear()
         Write-Host -ForegroundColor Magenta 'Script output starts .....................'
@@ -95,13 +96,12 @@ Process{
         }
         Write-Host -ForegroundColor Magenta 'Script output finishes ...................'
             $ErrorDetails=@{}
-            $Error |  ForEach-Object -Process{ $ErrorDetails.Add( $_.InvocationInfo.ScriptLineNumber , @( $_.CategoryInfo.Reason,$_.Exception.Message ) ) }
+            $Global:Error |  ForEach-Object -Process{ $ErrorDetails.Add( $_.InvocationInfo.ScriptLineNumber , @( $_.CategoryInfo.Reason,$_.Exception.Message ) ) }
     }
-
     $Content = Get-Content -Path $Script
     $ContentLengthDigit = $Content.Length.ToString().ToCharArray() | Measure-Object | Select-Object -ExpandProperty Count #Finding No. Digits in Content Length
 
-    $Output = $Content.GetEnumerator() | ForEach-Object -Process{
+    $Script:Output = $Content.GetEnumerator() | ForEach-Object -Process{
 
         $LineNumber = ++$Line
         $LineNumberDigit = ($LineNumber).ToString().ToCharArray() | Measure-Object | Select-Object -ExpandProperty Count #Finding No. Digits in Current line number
@@ -164,10 +164,10 @@ Process{
 end
 {
     & $ClearIt          
-    $Output | Format-Table  -Wrap
+    $Script:Output | Format-Table  -Wrap
     $ErrorActionPreference = $ErrorActionPreferenceBak
 }
 }
 
 
-Export-ModuleMember -Function Watch-PSScript
+Export-ModuleMember -Function Watch-PSScript -Variable *
