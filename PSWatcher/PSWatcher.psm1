@@ -166,8 +166,7 @@ Process{
     }
 
 }
-end
-{
+end{
     & $ClearIt          
     $Script:Output | Format-Table  -Wrap
     $ErrorActionPreference = $ErrorActionPreferenceBak
