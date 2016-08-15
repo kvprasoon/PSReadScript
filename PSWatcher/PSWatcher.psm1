@@ -1,10 +1,11 @@
+#requires -version 3
 <#
 .Synopsis
 This cmdlet shows the specified script by adding line numbers and error occured lines and more details if required.
 .Description
 This cmdlet shows the specified script by adding line numbers and error occured lines as per the parameters specified.
 This cmdlet has three parameter sets and parameter '-Script' is the only Mandatory parameter.This functionality will 
-be handy in case of Administration using consol only option to analyze error occuring areas of a script.
+be handy in case of Administration using consol only option to analyse error occurng areas of a script.
 .Example
 PS C:\> Watch-PSScript -Script .\test.ps1
 
@@ -165,7 +166,8 @@ Process{
     }
 
 }
-end{
+end
+{
     & $ClearIt          
     $Script:Output | Format-Table  -Wrap
     $ErrorActionPreference = $ErrorActionPreferenceBak
