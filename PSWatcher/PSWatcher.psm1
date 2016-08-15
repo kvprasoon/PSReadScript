@@ -83,10 +83,9 @@ Begin{
 }
 
 Process{
-$PSBoundParameters
     if($PSBoundParameters.ContainsKey('ExecuteAndShowBadLineAs')){
 
-        $Error.Clear()
+        $Global:Error.Clear()
         Write-Host -ForegroundColor Magenta 'Script output starts .....................'
         if( $PSBoundParameters.ContainsKey('ArgumentList') ){
             & $Script $Argumentlist
