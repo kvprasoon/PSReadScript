@@ -42,7 +42,6 @@ Function  Watch-PSScript
 param(
 # Accepts the script full path.Should be a .ps1 file
 [Parameter(Mandatory,ValueFromPipeline = $true)]
-[ValidatePattern('.ps1')]
 [String]$Script,
 
 # Arguments to pass to the Script.Arguments acts positionally.
@@ -73,18 +72,22 @@ Begin{
     if( -not( Test-Path -Path $Script ) ){
         Write-Warning -Message "Cannot find file $Script";break     
     }
+    elseif( (Get-Item -Path $Script | Select-Object -ExpandProperty Extension) -ne '.ps1' ){
+        Write-Error -Message "Scpecified file is not a PowerShell script('.ps1')" -Category InvalidArgument -TargetObject '.ps1 file' ; break
+    }
+
     $Line=0
     $HighLightingLine = New-Object -TypeName System.Collections.ArrayList
     $HighlightLine | ForEach-Object -Process { $HighLightingLine.Add($_)|Out-Null}
     $ErrorActionPreferenceBak = $ErrorActionPreference
     $ClearIt = {}
+
     if($HideError.IsPresent){ $ErrorActionPreference = 'SilentlyContinue' }
     if($HideOutput.IsPresent){ $ClearIt='Clear-Host' }
 }
 
 Process{
     if($PSBoundParameters.ContainsKey('ExecuteAndShowBadLineAs')){
-
         $Global:Error.Clear()
         Write-Host -ForegroundColor Magenta 'Script output starts .....................'
         if( $PSBoundParameters.ContainsKey('ArgumentList') ){
@@ -95,7 +98,9 @@ Process{
         }
         Write-Host -ForegroundColor Magenta 'Script output finishes ...................'
             $ErrorDetails=@{}
-            $Global:Error |  ForEach-Object -Process{ $ErrorDetails.Add( $_.InvocationInfo.ScriptLineNumber , @( $_.CategoryInfo.Reason,$_.Exception.Message ) ) }
+            $Global:Error |  ForEach-Object -Process{
+                                $ErrorDetails.Add( $_.InvocationInfo.ScriptLineNumber , @( $_.CategoryInfo.Reason,$_.Exception.Message ) )
+                             }
     }
     $Content = Get-Content -Path $Script
     $ContentLengthDigit = $Content.Length.ToString().ToCharArray() | Measure-Object | Select-Object -ExpandProperty Count #Finding No. Digits in Content Length
