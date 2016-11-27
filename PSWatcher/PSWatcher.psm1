@@ -1,43 +1,46 @@
-#requires -version 3
 <#
+
 .Synopsis
 This cmdlet shows the specified script by adding line numbers and error occurred lines and more details if required.
+
 .Description
 This cmdlet shows the specified script by adding line numbers and error occurred lines as per the parameters specified.
 This cmdlet has three parameter sets and parameter '-Script' is the only Mandatory parameter.This functionality will 
 be handy in case of Administration using console only option to analyse error occurng areas of a script.
+
 .Example
-PS C:\> Watch-PSScript -Script .\test.ps1
+PS C:\> Read-PSScript -Script .\test.ps1
 
 Reads the script and output script as plaintext including line numbers.
 
 .Example
-PS C:\> Watch-PSScript -Script .\test.ps1 -HighlightLine (1..5).
+PS C:\> Read-PSScript -Script .\test.ps1 -HighlightLine (1..5).
 
 Reads and outputs the script by highlighting first five lines.
 
 .Example
-PS C:\> Watch-PSScript -Script .\test.ps1  -ExecuteAndShowBadLineAs Raw
+PS C:\> Read-PSScript -Script .\test.ps1  -ExecuteAndShowBadLineAs Raw
 
 Executes the script as usual and shows the script as text after script execution by highighting errorcaused lines.
 
 .Example
-PS C:\> Watch-PSScript -Script .\test.ps1 -ExecuteAndShowBadLineAs TextTable
+PS C:\> Read-PSScript -Script .\test.ps1 -ExecuteAndShowBadLineAs TextTable
 
 Executes script as usual and shows the Script output,Errors and Error occurred line,Expression,Exception and Message as plain text Table.
 
 .Example
-PS C:\> Watch-PSScript -Script .\test.ps1 -ExecuteAndShowBadLineAs TextTable -HideError
+PS C:\> Read-PSScript -Script .\test.ps1 -ExecuteAndShowBadLineAs TextTable -HideError
 
 Execute script as usual and shows the Script output and error details as plain text table by hiding Error occurred.
 
 .Example
-PS C:\> Watch-PSScript -Script .\test.ps1 -ExecuteAndShowBadLineAs TextTable -HideError -HideOutput
+PS C:\> Read-PSScript -Script .\test.ps1 -ExecuteAndShowBadLineAs TextTable -HideError -HideOutput
 
 Execures the script as ususal and shows only the error details as plaint text table by hiding script output and error occurred.
 
+#requires -version 3
 #>
-Function  Watch-PSScript
+Function  Read-PSScript
 {
 [CmdletBinding(DefaultParameterSetName='Default')]
 param(
@@ -77,29 +80,35 @@ Begin{
         Write-Error -Message "Scpecified file is not a PowerShell script('.ps1')" -Category InvalidArgument -TargetObject '.ps1 file' ; break
     }
 
-    $Line=0
+    $Line = 0
     $HighLightingLine = New-Object -TypeName System.Collections.ArrayList
-    $HighlightLine | ForEach-Object -Process { $HighLightingLine.Add($_)|Out-Null}
+    $HighlightLine | ForEach-Object -Process { $HighLightingLine.Add($_) | Out-Null}
     $ErrorActionPreferenceBak = $ErrorActionPreference
     $ClearIt = {}
 
     if($HideError.IsPresent){ $ErrorActionPreference = 'SilentlyContinue' }
-    if($HideOutput.IsPresent){ $ClearIt='Clear-Host' }
+    Function WriteOutput
+    {
+    param($Input)
+        if(-not $HideOutput.IsPresent){ 
+        Write-Host -ForegroundColor Magenta 'Script output starts here .....................'        
+        $Input 
+        Write-Host -ForegroundColor Magenta 'Script output finishes here ...................'        
+        }
+    }
 }
 
 Process{
     if($PSBoundParameters.ContainsKey('ExecuteAndShowBadLineAs')){
         $Global:Error.Clear()
-        Write-Host -ForegroundColor Magenta 'Script output starts here .....................'
         if( $PSBoundParameters.ContainsKey('ArgumentList') ){
-            & $Script $Argumentlist
-            & $ClearIt
+          $ScriptOut =  & $Script $Argumentlist
+            WriteOutput -Input $ScriptOut
         }
         else{
-            & $Script
-            & $ClearIt
+          $ScriptOut = & $Script
+            WriteOutput -Input $ScriptOut
         }
-        Write-Host -ForegroundColor Magenta 'Script output finishes here ...................'
             $ErrorDetails=@{}
             $Global:Error |  ForEach-Object -Process{
                                 $ErrorDetails.Add( $_.InvocationInfo.ScriptLineNumber , @( $_.CategoryInfo.Reason,$_.Exception.Message ) )
@@ -125,7 +134,7 @@ Process{
                             else{
                                 Write-Host "$TrailingSpace$(($LineNumber)):  $_" -ForegroundColor Green ; break
                             }
-                    }#show Yellow Red for Bad lines.
+                    }#show Red for Bad lines.
                 }
                 else{ Write-Host "$TrailingSpace$(($LineNumber)):  $_" -ForegroundColor Green }
         }#If Execute Show Bad line is requested as Raw
@@ -139,12 +148,12 @@ Process{
                                [PSCustomObject]@{
                                 Line = $LineNumber
                                 Expression = $_
-                                Exception = $BadLine.item($LineNumber)[0]
+                                Exception = [Exception]$BadLine.item($LineNumber)[0]
                                 Message = $BadLine.item($LineNumber)[1]
                                 }
                                 $ErrorDetails.Remove($LineNumber) 
                             }
-                    }#show Yellow Red for Bad lines.
+                    }#show Red for Bad lines.
                 }
                 #else{ Write-Host "$TrailingSpace$(($LineNumber)):  $_" -ForegroundColor Green }
         }#If Execute Show Bad line is requested as Table
@@ -169,10 +178,10 @@ Process{
 
 }
 end{
-    $Script:Output | Format-Table  -Wrap
+    $Script:Output #| Format-Table  -Wrap
     $ErrorActionPreference = $ErrorActionPreferenceBak
 }
 }
 
 
-Export-ModuleMember -Function Watch-PSScript
+Export-ModuleMember -Function Read-PSScript
