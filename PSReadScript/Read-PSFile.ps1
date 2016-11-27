@@ -26,6 +26,7 @@ Reads all .ml files under -path c:\Files and outputs the occurence of the -Strin
 #>
 Function Read-PSFile
 {
+[Alias('rpf')]
 Param(
 #String to Find inside the file
 [Parameter(Mandatory , Position = 0)]
