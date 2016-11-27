@@ -1,6 +1,6 @@
-# PSWatcher
+# PSReadScript
 PowerShell Script repository for PSWatcher module
 
 
 #Functions
-Watch-PSScript
+Read-PSScript
