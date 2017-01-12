@@ -44,7 +44,7 @@ Execures the script as ususal and shows only the error details as plaint text ta
 Function  Read-PSScript
 {
 [CmdletBinding(DefaultParameterSetName='Default')]
-[Alias('rps')]
+[Alias('rps','fps')]
 param(
 # Accepts the script full path.Should be a .ps1 file
 [Parameter(Mandatory,ValueFromPipeline = $true)]
