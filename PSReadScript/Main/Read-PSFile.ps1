@@ -4,8 +4,8 @@
 This cmdlet shows the specified string in all the sripts including line numbers.
 
 .Description
-This cmdlet shows the specified Script by adding line numbers,by default it will search in current directory for
-.ps1 script and shows the occurence with line numbers for each file with file name.
+This cmdlet shows the specified Script by adding line numbers,by default it will search in current directory for .ps1
+script and shows the occurence with line numbers for each file with file name.
 
 .Example
 PS C:\> Read-PSFile -LookupPath c:\Scripts -String 'PowerPlan'
