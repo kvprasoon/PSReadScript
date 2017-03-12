@@ -1,0 +1,10 @@
+{
+  "version": "0.2.1",
+  "tasks": [
+    {
+      "appliesTo": "PSReadScript/Main/Read-PSFile.ps1",
+      "taskName": "task-Read-PSFile",
+      "type": "command"
+    }
+  ]
+}
