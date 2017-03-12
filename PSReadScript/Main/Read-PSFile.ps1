@@ -36,13 +36,24 @@ Param(
 [Parameter(Position = 1)]
 [String]$LookupPath = '.',
 
-#Type of the file (extension)
+#Type of the file (extension eg:- .ps1 , .xml)
 [Parameter(Position = 2)]
 [String]$Type = '.ps1',
 
 #Recurse option
 [Switch]$Recurse
 )
+
+
+Begin{
+
+	if(-not (Test-Path -Path $LookupPath)){
+	
+		throw "Unable to find path '$LookupPath'"
+	
+	}
+
+}
 
 Process{
 
