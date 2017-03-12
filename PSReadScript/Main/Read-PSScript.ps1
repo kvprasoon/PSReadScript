@@ -76,7 +76,7 @@ $ExecuteAndShowBadLineAs,
 Begin{
     $Script:Output=''
     if( -not( Test-Path -Path $Script ) ){
-        Throw "Cannot find file $Script";break     
+        Throw "Cannot find file $Script"    
     }
     elseif( (Get-Item -Path $Script | Select-Object -ExpandProperty Extension) -ne '.ps1' ){
         Write-Error -Message "Scpecified file is not a PowerShell script('.ps1')" -Category InvalidArgument -TargetObject '.ps1 file' ; break
